@@ -31,8 +31,8 @@ async function uploadToS3(file, presignedUrl, progressCallback) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         
-        console.log('开始上传到S3...');
-        console.log('预签名URL:', presignedUrl);
+        console.log('Start uploading to S3...');
+        console.log('Pre-signed URL:', presignedUrl);
         
         xhr.upload.onprogress = function(event) {
             if (event.lengthComputable && progressCallback) {
@@ -42,7 +42,7 @@ async function uploadToS3(file, presignedUrl, progressCallback) {
         };
         
         xhr.onload = function() {
-            console.log('上传响应状态:', xhr.status);
+            console.log('Response status of the upload:', xhr.status);
             if (xhr.status === 200) {
                 resolve();
             } else {

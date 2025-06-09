@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BirdTag - Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body class="login-body">
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <!-- Left side - Login Form -->
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+                <div class="login-container">
+                    <div class="text-center mb-4">
+                        <h1 class="brand-title">🐦 BirdTag</h1>
+                        <p class="brand-subtitle">AWS-powered Bird Media Storage</p>
+                    </div>
+
+                    <!-- Login Form -->
+                    <div id="loginForm" class="auth-form">
+                        <h3 class="text-center mb-4">Sign In</h3>
+                        <form id="loginFormElement">
+                            <div class="mb-3">
+                                <label for="loginEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="loginEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="loginPassword" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="loginPassword" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 mb-3">Sign In</button>
+                        </form>
+                        <div class="text-center">
+                            <p>Don't have an account? <a href="#" onclick="showSignupForm()">Sign Up</a></p>
+                        </div>
+                    </div>
+
+                    <!-- Signup Form -->
+                    <div id="signupForm" class="auth-form" style="display: none;">
+                        <h3 class="text-center mb-4">Sign Up</h3>
+                        <form id="signupFormElement">
+                            <div class="mb-3">
+                                <label for="signupFirstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="signupFirstName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="signupLastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="signupLastName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="signupEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="signupEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="signupPassword" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="signupPassword" required>
+                                <div class="form-text">Password must be at least 8 characters long</div>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 mb-3">Sign Up</button>
+                        </form>
+                        <div class="text-center">
+                            <p>Already have an account? <a href="#" onclick="showLoginForm()">Sign In</a></p>
+                        </div>
+                    </div>
+
+                    <!-- Loading Spinner -->
+                    <div id="loadingSpinner" class="text-center" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Processing...</p>
+                    </div>
+
+                    <!-- Alert Messages -->
+                    <div id="alertContainer"></div>
+                </div>
+            </div>
+
+            <!-- Right side - Background Image -->
+            <div class="col-md-6 login-bg">
+                <div class="bg-overlay">
+                    <div class="overlay-content">
+                        <h2>Welcome to BirdTag</h2>
+                        <p>Store, organize, and discover bird media with AI-powered tagging</p>
+                        <ul class="feature-list">
+                            <li>🔍 Smart bird species detection</li>
+                            <li>📁 Organized file storage</li>
+                            <li>🔗 Easy sharing and collaboration</li>
+                            <li>🔔 Smart notifications</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- AWS SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aws-sdk/2.1000.0/aws-sdk.min.js"></script>
+    <script src="https://unpkg.com/amazon-cognito-identity-js@6.3.12/dist/amazon-cognito-identity.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="js/auth.js"></script>
+    
+    <script>
+        // Form switching functions
+        function showSignupForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'block';
+            clearAlerts();
+        }
+
+        function showLoginForm() {
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            clearAlerts();
+        }
+
+        function showLoading() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        function showAlert(message, type = 'danger') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            alertContainer.innerHTML = alertHTML;
+        }
+
+        function clearAlerts() {
+            document.getElementById('alertContainer').innerHTML = '';
+        }
+
+        // Form submission handlers
+        document.getElementById('loginFormElement').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            showLoading();
+            
+            // Call authentication function
+            signInUser(email, password)
+                .then(() => {
+                    showAlert('Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                })
+                .catch((error) => {
+                    hideLoading();
+                    showAlert('Login failed: ' + error.message);
+                });
+        });
+
+        document.getElementById('signupFormElement').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const firstName = document.getElementById('signupFirstName').value;
+            const lastName = document.getElementById('signupLastName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            showLoading();
+            
+            // Call authentication function
+            signUpUser(email, password, firstName, lastName)
+                .then(() => {
+                    hideLoading();
+                    showAlert('Account created successfully! Please check your email to verify your account.', 'success');
+                    showLoginForm();
+                })
+                .catch((error) => {
+                    hideLoading();
+                    showAlert('Sign up failed: ' + error.message);
+                });
+        });
+
+        // Check if user is already logged in
+        window.addEventListener('load', function() {
+            if (isUserLoggedIn()) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 const COGNITO_CONFIG = {
     region: 'us-east-1', // Replace with your region
     userPoolId: 'us-east-1_1fIpvejJB', // Replace with your User Pool ID
-    clientId: '7sf9shs45tivb8r7aq5tm7et75', // Replace with your App Client ID
+    clientId: '7qv1017295fg6i1m5iuiqqcutt', // Replace with your App Client ID
 };
 
 // Initialize AWS Cognito

@@ -58,12 +58,8 @@ async function uploadToS3(file, presignedUrl, progressCallback) {
         };
         
         xhr.open('PUT', presignedUrl);
-        
-        // 重新设置Content-Type，这次确保和后端生成预签名URL时一致
-        if (file.type) {
-            xhr.setRequestHeader('Content-Type', file.type);
-        }
-        
+        // 完全不设置Content-Type，让S3自动处理
+        // xhr.setRequestHeader('Content-Type', file.type);
         xhr.send(file);
     });
 }

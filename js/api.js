@@ -59,7 +59,7 @@ async function uploadToS3(file, presignedUrl, progressCallback) {
 }
 
 // Demo mode for testing without real API
-const API_DEMO_MODE = false; // Set to false when connecting to real API
+const API_DEMO_MODE = true; // Set to false when connecting to real API
 
 // Demo data for testing
 const DEMO_DATA = {

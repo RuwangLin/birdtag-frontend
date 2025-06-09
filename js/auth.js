@@ -25,7 +25,7 @@ function initializeCognito() {
 }
 
 // For development/testing - simulate authentication
-const DEMO_MODE = false; // Set to false when integrating with real Cognito
+const DEMO_MODE = true; // Set to false when integrating with real Cognito
 
 // Check if user is logged in
 function isUserLoggedIn() {

@@ -102,6 +102,39 @@ function signUpUser(email, password, firstName, lastName) {
     });
 }
 
+// 在这里添加新的确认函数 ↓
+function confirmUser(email, confirmationCode) {
+    return new Promise((resolve, reject) => {
+        if (DEMO_MODE) {
+            resolve({ message: 'Demo user confirmed!' });
+            return;
+        }
+
+        if (!userPool) {
+            reject(new Error('Cognito not initialized'));
+            return;
+        }
+
+        // 使用相同的用户名格式
+        const username = email.replace('@', '_at_').replace('.', '_dot_');
+        
+        const userData = {
+            Username: username,
+            Pool: userPool
+        };
+
+        cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+        cognitoUser.confirmRegistration(confirmationCode, true, function(err, result) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(result);
+        });
+    });
+}
+
 // Sign in user
 function signInUser(email, password) {
     return new Promise((resolve, reject) => {

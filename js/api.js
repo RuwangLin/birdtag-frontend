@@ -32,7 +32,10 @@ async function uploadToS3(file, presignedUrl, progressCallback) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         
-        // 监听上传进度
+        console.log('开始上传到S3...');
+        console.log('文件类型:', file.type);
+        console.log('预签名URL:', presignedUrl);
+        
         xhr.upload.onprogress = function(event) {
             if (event.lengthComputable && progressCallback) {
                 const progress = Math.round((event.loaded / event.total) * 100);
@@ -41,19 +44,23 @@ async function uploadToS3(file, presignedUrl, progressCallback) {
         };
         
         xhr.onload = function() {
+            console.log('上传响应状态:', xhr.status);
+            console.log('响应内容:', xhr.responseText);
             if (xhr.status === 200) {
                 resolve();
             } else {
-                reject(new Error(`Upload failed: ${xhr.status}`));
+                reject(new Error(`Upload failed: ${xhr.status} - ${xhr.responseText}`));
             }
         };
         
         xhr.onerror = function() {
+            console.log('上传发生网络错误');
             reject(new Error('Upload failed'));
         };
         
         xhr.open('PUT', presignedUrl);
-        xhr.setRequestHeader('Content-Type', file.type);
+        // 暂时注释掉这行，让我们看看是否是Content-Type的问题
+        // xhr.setRequestHeader('Content-Type', file.type);
         xhr.send(file);
     });
 }

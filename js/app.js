@@ -332,7 +332,18 @@ async function searchByFile() {
 function displaySearchResults(results) {
     const resultsContainer = document.getElementById('searchResults');
     
-    if (!results || results.length === 0) {
+    // 检查结果格式 - 后端返回的是 {links: [...]} 格式
+    let urlList;
+    if (results && results.links) {
+        urlList = results.links;
+    } else if (Array.isArray(results)) {
+        urlList = results;
+    } else {
+        resultsContainer.innerHTML = '<p class="text-muted">No results found.</p>';
+        return;
+    }
+    
+    if (!urlList || urlList.length === 0) {
         resultsContainer.innerHTML = '<p class="text-muted">No results found.</p>';
         return;
     }
@@ -340,12 +351,31 @@ function displaySearchResults(results) {
     const resultsGrid = document.createElement('div');
     resultsGrid.className = 'results-grid';
     
-    results.forEach(result => {
-        const resultCard = createResultCard(result);
+    urlList.forEach(url => {
+        // 从URL推断文件类型和名称
+        const filename = url.split('/').pop();
+        const isImage = url.includes('thumbnail') || /\.(jpg|jpeg|png|gif|webp)$/i.test(filename);
+        const isVideo = /\.(mp4|webm|ogg|avi|mov)$/i.test(filename);
+        const isAudio = /\.(mp3|wav|ogg|m4a)$/i.test(filename);
+        
+        let fileType = 'unknown';
+        if (isImage) fileType = 'image';
+        else if (isVideo) fileType = 'video';
+        else if (isAudio) fileType = 'audio';
+        
+        const resultItem = {
+            url: url,           // 缩略图或文件URL
+            fullUrl: url,       // 完整文件URL（暂时相同）
+            filename: filename,
+            tags: [],           // 后端返回中没有标签信息
+            fileType: fileType
+        };
+        
+        const resultCard = createResultCard(resultItem);
         resultsGrid.appendChild(resultCard);
     });
     
-    resultsContainer.innerHTML = `<h5>Search Results (${results.length} files)</h5>`;
+    resultsContainer.innerHTML = `<h5>Search Results (${urlList.length} files)</h5>`;
     resultsContainer.appendChild(resultsGrid);
 }
 

@@ -355,13 +355,17 @@ async function uploadFile(file, progressCallback) {
             // 真实上传模式
             
             // 第一步：获取预签名URL
-            const fileExtension = file.name.split('.').pop();
+            const fileExtension = file.name.split('.').pop().toLowerCase();
             const fileType = getFileTypeCategory(file.type);
             
-            const uploadRequest = await makeApiCall('/upload', 'POST', {
+            const uploadRequest = await makeApiCall(API_CONFIG.endpoints.upload, 'POST', {
                 type: fileType,  // 'images', 'videos', 或 'audios'
                 suffix: fileExtension
             });
+
+            if (!uploadRequest.upload_url) {
+                throw new Error('Failed to get upload URL from server');
+            }
             
             // 第二步：使用预签名URL上传到S3
             const uploadUrl = uploadRequest.upload_url;
@@ -384,7 +388,16 @@ async function uploadFile(file, progressCallback) {
 // Search files by tags
 async function searchFiles(tags) {
     try {
-        const result = await makeApiCall('/search', 'POST', { tags });
+        // 转换tags格式：从 [{species: 'crow', count: 3}] 
+        // 转为 {crow: 3, pigeon: 2}
+        const tagsObject = {};
+        tags.forEach(tag => {
+            tagsObject[tag.species] = tag.count;
+        });
+        
+        const result = await makeApiCall(API_CONFIG.endpoints.search, 'POST', { 
+            tags: tagsObject 
+        });
         return result;
     } catch (error) {
         console.error('Search error:', error);
@@ -395,7 +408,9 @@ async function searchFiles(tags) {
 // Search files by species
 async function searchBySpecies(species) {
     try {
-        const result = await makeApiCall('/search/species', 'GET', { species });
+        const result = await makeApiCall(API_CONFIG.endpoints.searchBySpecies, 'POST', { 
+            tags: { [species]: null }  // 创建格式 {crow: null}
+        });
         return result;
     } catch (error) {
         console.error('Species search error:', error);
@@ -403,10 +418,11 @@ async function searchBySpecies(species) {
     }
 }
 
-// Search by thumbnail URL
 async function searchByThumbnailUrl(thumbnailUrl) {
     try {
-        const result = await makeApiCall('/search/thumbnail', 'GET', { thumbnailUrl });
+        const result = await makeApiCall(API_CONFIG.endpoints.searchByThumbnail, 'POST', { 
+            thumbnail: thumbnailUrl 
+        });
         return result;
     } catch (error) {
         console.error('Thumbnail search error:', error);
@@ -417,9 +433,23 @@ async function searchByThumbnailUrl(thumbnailUrl) {
 // Search by uploaded file
 async function searchByUploadedFile(file) {
     try {
-        const result = await makeApiCall('/search/file', 'POST', {
+        // 将文件转换为base64
+        const fileContent = await fileToBase64(file);
+        
+        // 确定文件类型
+        let filetype;
+        if (file.type.startsWith('image/')) {
+            filetype = 'image';
+        } else if (file.type.startsWith('video/')) {
+            filetype = 'video';
+        } else {
+            throw new Error('Unsupported file type');
+        }
+        
+        const result = await makeApiCall(API_CONFIG.endpoints.searchByFile, 'POST', {
             filename: file.name,
-            type: file.type
+            filetype: filetype,      // 注意这里是 "filetype"
+            content: fileContent     // base64编码的文件内容
         });
         return result;
     } catch (error) {
@@ -428,13 +458,27 @@ async function searchByUploadedFile(file) {
     }
 }
 
+// 新增辅助函数：将文件转换为base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            // 移除 "data:image/jpeg;base64," 前缀，只保留base64内容
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
 // Bulk tag management
 async function manageBulkTags(urls, operation, tags) {
     try {
-        const result = await makeApiCall('/tags', 'POST', {
-            urls,
-            operation,
-            tags
+        const result = await makeApiCall(API_CONFIG.endpoints.manageTags, 'POST', {
+            url: urls,              // 后端期望 "url" 字段名
+            operation: operation,    // 1 或 0
+            tags: tags              // 已经是 ["crow,1", "pigeon,2"] 格式
         });
         return result;
     } catch (error) {
@@ -443,14 +487,20 @@ async function manageBulkTags(urls, operation, tags) {
     }
 }
 
-// Delete files
+// Delete files 
 async function deleteMultipleFiles(urls) {
     try {
-        const result = await makeApiCall('/files', 'DELETE', { urls });
+        // 注意：根据后端代码，删除功能可能没有实现
+        // 这里先保持调用，如果后端没有这个功能，需要另想办法
+        const result = await makeApiCall(API_CONFIG.endpoints.deleteFiles, 'POST', {
+            url: urls,              // 使用 "url" 字段名保持一致
+            operation: 'delete'     // 添加操作类型标识
+        });
         return result;
     } catch (error) {
         console.error('Delete error:', error);
-        throw error;
+        // 如果API不存在，提供友好的错误信息
+        throw new Error('Delete functionality not yet implemented in backend');
     }
 }
 /*

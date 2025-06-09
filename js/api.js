@@ -206,27 +206,30 @@ function simulateUpload(data) {
 }
 
 function simulateSearch(data) {
+    console.log('simulateSearch called with:', data); // 调试信息
+    console.log('Current DEMO_DATA:', DEMO_DATA.uploadedFiles); // 调试信息
+    
     const { tags } = data;
     let results = DEMO_DATA.uploadedFiles;
     
-    if (tags && tags.length > 0) {
+    console.log('Available results:', results); // 调试信息
+    
+    // 如果有标签过滤条件
+    if (tags && Object.keys(tags).length > 0) {
         results = results.filter(file => {
-            return tags.every(searchTag => {
-                const fileTag = file.tags.find(t => t.species === searchTag.species);
-                return fileTag && fileTag.count >= searchTag.count;
+            return Object.entries(tags).every(([species, minCount]) => {
+                const fileTag = file.tags.find(t => t.species === species);
+                return fileTag && fileTag.count >= minCount;
             });
         });
     }
     
+    console.log('Filtered results:', results); // 调试信息
+    
+    // 返回后端期望的格式 {links: [...]}
     return {
         success: true,
-        results: results.map(file => ({
-            url: file.thumbnail || file.url,
-            fullUrl: file.url,
-            filename: file.filename,
-            tags: file.tags,
-            fileType: file.fileType
-        }))
+        links: results.map(file => file.thumbnail || file.url)
     };
 }
 

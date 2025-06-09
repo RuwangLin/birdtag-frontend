@@ -278,9 +278,9 @@ async function browseAll() {
     resultsContainer.innerHTML = '<div class="text-center"><div class="spinner-border"></div><p>Loading all files...</p></div>';
     
     try {
-        // Search with empty tags to get all files
-        const result = await searchFiles([]);
-        displaySearchResults(result.results);
+        // 传递空的tags对象来获取所有文件
+        const result = await searchFiles([]); // 改为传递空数组
+        displaySearchResults(result);
     } catch (error) {
         showAlert('Failed to load files: ' + error.message, 'danger');
         resultsContainer.innerHTML = '<p class="text-muted">Failed to load files. Please try again.</p>';

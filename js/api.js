@@ -27,7 +27,6 @@ function getFileTypeCategory(mimeType) {
     return 'images'; // 默认
 }
 
-// 添加S3上传函数
 async function uploadToS3(file, presignedUrl, progressCallback) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -59,8 +58,12 @@ async function uploadToS3(file, presignedUrl, progressCallback) {
         };
         
         xhr.open('PUT', presignedUrl);
-        // 暂时注释掉这行，让我们看看是否是Content-Type的问题
-        // xhr.setRequestHeader('Content-Type', file.type);
+        
+        // 重新设置Content-Type，这次确保和后端生成预签名URL时一致
+        if (file.type) {
+            xhr.setRequestHeader('Content-Type', file.type);
+        }
+        
         xhr.send(file);
     });
 }

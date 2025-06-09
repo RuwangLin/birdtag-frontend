@@ -112,7 +112,7 @@ async function makeApiCall(endpoint, method = 'GET', data = null) {
         const tokens = getAuthTokens();
         const headers = {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${tokens.accessToken}`
+            'Authorization': `Bearer ${tokens.idToken}`
         };
 
         const config = {

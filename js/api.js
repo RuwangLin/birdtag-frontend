@@ -32,7 +32,6 @@ async function uploadToS3(file, presignedUrl, progressCallback) {
         const xhr = new XMLHttpRequest();
         
         console.log('开始上传到S3...');
-        console.log('文件类型:', file.type);
         console.log('预签名URL:', presignedUrl);
         
         xhr.upload.onprogress = function(event) {
@@ -44,26 +43,29 @@ async function uploadToS3(file, presignedUrl, progressCallback) {
         
         xhr.onload = function() {
             console.log('上传响应状态:', xhr.status);
-            console.log('响应内容:', xhr.responseText);
             if (xhr.status === 200) {
                 resolve();
             } else {
-                reject(new Error(`Upload failed: ${xhr.status} - ${xhr.responseText}`));
+                reject(new Error(`Upload failed: ${xhr.status}`));
             }
         };
         
         xhr.onerror = function() {
-            console.log('上传发生网络错误');
             reject(new Error('Upload failed'));
         };
         
         xhr.open('PUT', presignedUrl);
-        // 完全不设置Content-Type，让S3自动处理
-        //xhr.setRequestHeader('Content-Type', file.type);
+        
+        // 尝试明确设置为空的Content-Type（可能不工作）
+        try {
+            xhr.setRequestHeader('Content-Type', '');
+        } catch (e) {
+            console.log('无法清空Content-Type');
+        }
+        
         xhr.send(file);
     });
 }
-
 // Demo mode for testing without real API
 const API_DEMO_MODE = false; // Set to false when connecting to real API
 

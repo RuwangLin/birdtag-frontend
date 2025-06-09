@@ -59,7 +59,7 @@ async function uploadToS3(file, presignedUrl, progressCallback) {
         
         xhr.open('PUT', presignedUrl);
         // 完全不设置Content-Type，让S3自动处理
-        // xhr.setRequestHeader('Content-Type', file.type);
+        xhr.setRequestHeader('Content-Type', file.type);
         xhr.send(file);
     });
 }

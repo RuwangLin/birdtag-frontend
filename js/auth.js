@@ -88,7 +88,10 @@ function signUpUser(email, password, firstName, lastName) {
         attributeList.push(firstNameAttribute);
         attributeList.push(lastNameAttribute);
 
-        userPool.signUp(email, password, attributeList, null, function(err, result) {
+        // 生成唯一用户名（基于邮箱但去掉特殊字符）
+        const username = email.replace('@', '_at_').replace('.', '_dot_');
+
+        userPool.signUp(username, password, attributeList, null, function(err, result) {
             if (err) {
                 reject(err);
                 return;
@@ -141,15 +144,17 @@ function signInUser(email, password) {
             return;
         }
 
+        const username = email.replace('@', '_at_').replace('.', '_dot_');
+
         const userData = {
-            Username: email,
+            Username: username,
             Pool: userPool
         };
 
         cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
 
         const authenticationData = {
-            Username: email,
+            Username: username,
             Password: password
         };
 

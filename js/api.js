@@ -453,7 +453,7 @@ async function deleteMultipleFiles(urls) {
         throw error;
     }
 }
-
+/*
 // Notification management
 async function subscribeToSpecies(species) {
     try {
@@ -490,3 +490,4 @@ async function getNotificationSubscriptions() {
         throw error;
     }
 }
+*/

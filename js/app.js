@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeUpload();
     
     // Load initial data
-    loadNotificationSubscriptions();
+    //loadNotificationSubscriptions();
     
     // Show welcome message
     showAlert('Welcome to BirdTag!', 'success');
@@ -66,9 +66,9 @@ function showSection(sectionName) {
         case 'search':
             loadSearchData();
             break;
-        case 'notifications':
+        //case 'notifications':
             //loadNotificationSubscriptions();
-            break;
+           // break;
     }
 }
 
@@ -462,7 +462,7 @@ async function deleteFiles() {
         showAlert('Delete failed: ' + error.message, 'danger');
     }
 }
-
+/*
 // Notification Functions
 async function subscribeToNotifications() {
     const species = document.getElementById('notificationSpecies').value.trim();
@@ -518,6 +518,7 @@ async function unsubscribe(subscriptionId) {
         showAlert('Unsubscribe failed: ' + error.message, 'danger');
     }
 }
+*/
 
 // Utility Functions
 function showAlert(message, type = 'info') {

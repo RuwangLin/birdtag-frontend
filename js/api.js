@@ -118,7 +118,7 @@ async function makeApiCall(endpoint, method = 'GET', data = null) {
         const tokens = "eyJraWQiOiJVMlNFNm80U0xRUXhhMHBTakhXbjMwMTdNem5QN3BJSGdlR0I4RFhNQzRZPSIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoicGdSQUhlakNjUjNyaWR2RW1mR0JSUSIsInN1YiI6ImY0ZjgyNDQ4LTYwMzEtNzA2YS1iODg2LTYxZTA1ZWM0ZTI3YiIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV8xZklwdmVqSkIiLCJjb2duaXRvOnVzZXJuYW1lIjoiMjk4MzA1NjkzNl9hdF9xcV9kb3RfY29tIiwiZ2l2ZW5fbmFtZSI6IlJ1d2FuZyIsImF1ZCI6ImNwMmFhaThlczE2NG5oM29pZ2lraG00bHQiLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTc0OTQ4MjIzMCwiZXhwIjoxNzQ5NDg1ODMwLCJpYXQiOjE3NDk0ODIyMzAsImZhbWlseV9uYW1lIjoiTCIsImp0aSI6IjIxMzIwOWYyLTJhOGYtNDlkMi05ZTAzLWM2ZjVjOGQ0MzM0YSIsImVtYWlsIjoiMjk4MzA1NjkzNkBxcS5jb20ifQ.hjoh59oBmbxkWFciM8e7Tkqv7GaauZYL2demYuFLEVpW43JbkeOZPBTd-5HAPSCbHk3oGVeEfWpeSGhm9mYx-R5rwB5pl2WgwjPaPpeU_TZaIk6gMtcKURwemU9ZJ_tWL2sMJ2OTm3oohlR9ey9M2yHiRNeD6VsmtvD2vJ8r9UA5uhNC8gAasOaNqoq7h7MY5dtJ3rXE67D6PzoUl7t3hIxgEw0Co_HMcrkinjQSZSBfGFBrBO-iBy_f4hmwO7-Ou58ife1uNYuPMrzaJYbG6Aq8BG08PNPRxJDDNRrSiqomfRyGF7mUf2Nhfi9U6hr57XJxz8DprQ2fl-EYM_3JbA"
         const headers = {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${tokens.idToken}`
+            'Authorization': `Bearer ${token}}`
         };
 
         const config = {

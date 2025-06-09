@@ -3,16 +3,60 @@
 const API_CONFIG = {
     baseUrl: 'https://40o4yaxd8d.execute-api.us-east-1.amazonaws.com/dev',
     endpoints: {
-        upload: '/upload',
-        search: '/search',
-        searchBySpecies: '/search/species',
-        searchByThumbnail: '/search/thumbnail', 
-        searchByFile: '/search/file',
-        manageTags: '/tags',
-        deleteFiles: '/files',
-        notifications: '/notifications'
+        upload: '/Upload',
+        search: '/query',
+        searchBySpecies: '/query-species',
+        searchByThumbnail: '/query-thumbnail', 
+        searchByFile: '/query-tags',
+        manageTags: '/query-manual',
+        deleteFiles: '/query-manual',
+        //notifications: '/notifications'
     }
 };
+
+
+// 添加这个函数来判断文件类型
+function getFileTypeCategory(mimeType) {
+    if (mimeType.startsWith('image/')) {
+        return 'images';
+    } else if (mimeType.startsWith('video/')) {
+        return 'videos';
+    } else if (mimeType.startsWith('audio/')) {
+        return 'audios';
+    }
+    return 'images'; // 默认
+}
+
+// 添加S3上传函数
+async function uploadToS3(file, presignedUrl, progressCallback) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        
+        // 监听上传进度
+        xhr.upload.onprogress = function(event) {
+            if (event.lengthComputable && progressCallback) {
+                const progress = Math.round((event.loaded / event.total) * 100);
+                progressCallback(progress);
+            }
+        };
+        
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                resolve();
+            } else {
+                reject(new Error(`Upload failed: ${xhr.status}`));
+            }
+        };
+        
+        xhr.onerror = function() {
+            reject(new Error('Upload failed'));
+        };
+        
+        xhr.open('PUT', presignedUrl);
+        xhr.setRequestHeader('Content-Type', file.type);
+        xhr.send(file);
+    });
+}
 
 // Demo mode for testing without real API
 const API_DEMO_MODE = false; // Set to false when connecting to real API
@@ -298,22 +342,39 @@ function simulateNotifications(data) {
 async function uploadFile(file, progressCallback) {
     try {
         if (API_DEMO_MODE) {
-            // Simulate upload progress
+            // 保持Demo模式代码不变
             for (let i = 0; i <= 100; i += 10) {
                 if (progressCallback) {
                     progressCallback(i);
                 }
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
+            // Demo模式的返回
+            return { success: true, message: 'Demo upload successful' };
+        } else {
+            // 真实上传模式
+            
+            // 第一步：获取预签名URL
+            const fileExtension = file.name.split('.').pop();
+            const fileType = getFileTypeCategory(file.type);
+            
+            const uploadRequest = await makeApiCall('/upload', 'POST', {
+                type: fileType,  // 'images', 'videos', 或 'audios'
+                suffix: fileExtension
+            });
+            
+            // 第二步：使用预签名URL上传到S3
+            const uploadUrl = uploadRequest.upload_url;
+            
+            await uploadToS3(file, uploadUrl, progressCallback);
+            
+            // 返回成功结果
+            return { 
+                success: true, 
+                message: 'File uploaded successfully',
+                s3Key: uploadRequest.s3_key 
+            };
         }
-        
-        const result = await makeApiCall('/upload', 'POST', {
-            filename: file.name,
-            type: file.type,
-            size: file.size
-        });
-        
-        return result;
     } catch (error) {
         console.error('Upload error:', error);
         throw error;

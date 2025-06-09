@@ -67,7 +67,7 @@ function showSection(sectionName) {
             loadSearchData();
             break;
         case 'notifications':
-            loadNotificationSubscriptions();
+            //loadNotificationSubscriptions();
             break;
     }
 }
